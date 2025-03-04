@@ -1,0 +1,88 @@
+[package]
+name = "intel_crashlog"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = [
+    "extraction",
+    "embedded_collateral_tree",
+    "ffi",
+    "fs_collateral_tree",
+    "serialize",
+    "std"
+]
+collateral_manager = [
+    "dep:serde",
+    "dep:serde_json"
+]
+extraction = [
+    "dep:uefi",
+    "dep:uefi-raw",
+    "dep:windows",
+]
+embedded_collateral_tree = [
+    "collateral_manager"
+]
+fs_collateral_tree = [
+    "collateral_manager",
+    "std"
+]
+ffi = [
+    "embedded_collateral_tree"
+]
+serialize = [
+    "dep:serde",
+    "dep:serde_json",
+]
+std = [
+    "serde/std"
+]
+
+[build-dependencies]
+cbindgen = "0.27"
+cargo-emit = "0.2"
+
+[dependencies]
+acpi = "5.1"
+uguid = "2.2"
+log = "0.4"
+
+[dependencies.serde]
+version = "1.0"
+optional = true
+default-features = false
+features = [
+    "derive"
+]
+
+[dependencies.serde_json]
+version = "1.0"
+optional = true
+default-features = false
+features = [
+    "alloc"
+]
+
+[target.'cfg(windows)'.dependencies.windows]
+version = "0.58"
+optional = true
+features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_System",
+    "Win32_System_EventLog",
+    "Win32_System_Time",
+]
+
+[target.'cfg(target_os = "uefi")'.dependencies.uefi]
+version = "0.33"
+optional = true
+
+[target.'cfg(target_os = "uefi")'.dependencies.uefi-raw]
+version = "0.9"
+optional = true

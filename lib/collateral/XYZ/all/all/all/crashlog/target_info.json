@@ -1,0 +1,9 @@
+{
+  "product": "XYZ",
+  "variant": "all",
+  "product_id": "0x7a",
+  "die_id": {
+      "0": "io0",
+      "1": "io1"
+  }
+}
