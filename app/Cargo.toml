@@ -1,0 +1,19 @@
+[package]
+name = "intel_crashlog_app"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[[bin]]
+name = "iclg"
+path = "src/main.rs"
+
+[dependencies]
+log = "0.4"
+env_logger = "0.11"
+intel_crashlog = { version = "0.1", path = "../lib"}
+serde_json = "1.0"
+
+[dependencies.clap]
+version = "4.5"
+features = ["derive"]
