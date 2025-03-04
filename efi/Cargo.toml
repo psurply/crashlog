@@ -1,0 +1,39 @@
+[package]
+name = "intel_crashlog_efi"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[[bin]]
+name = "iclg"
+path = "src/main.rs"
+
+[dependencies]
+acpi = "5.0"
+log = "0.4"
+
+[dependencies.intel_crashlog]
+version = "0.1"
+path = "../lib"
+default-features = false
+features = [
+    "embedded_collateral_tree",
+    "extraction",
+    "serialize",
+]
+
+[dependencies.uefi]
+version = "0.33"
+features = [
+    "alloc",
+    "panic_handler",
+    "logger",
+    "global_allocator"
+]
+
+[dependencies.serde_json]
+version = "1.0"
+default-features = false
+features = [
+    "alloc"
+]
