@@ -30,6 +30,8 @@ jobs:
         run: cargo doc --no-deps
       - name: Copy library documentation
         run: cp -a ./lib/target/doc/ ./_site/crates
+      - name: Add redirect
+        run: echo '<meta http-equiv="refresh" content="0;url=crates/intel_crashlog">' > _site/index.html
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
