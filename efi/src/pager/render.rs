@@ -14,7 +14,7 @@ impl Pager {
             let line = &line[0..self.window.columns.min(line.len())];
 
             if self.search_pattern.is_empty() {
-                let _ = writeln!(self.output, "{}", line);
+                let _ = writeln!(self.output, "{line}");
                 return Ok(());
             }
 
