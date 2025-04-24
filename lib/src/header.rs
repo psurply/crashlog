@@ -404,11 +404,11 @@ impl fmt::Display for Header {
         let header_type = match self.header_type {
             HeaderType::Type6 {
                 die_id, socket_id, ..
-            } => format!("die_id={0}, socket_id={1}", die_id, socket_id),
+            } => format!("die_id={die_id}, socket_id={socket_id}"),
             _ => "..".to_string(),
         };
 
-        write!(f, "{} - ({}, {})", record_type, version, header_type)
+        write!(f, "{record_type} - ({version}, {header_type})")
     }
 }
 
@@ -627,7 +627,7 @@ impl From<&Header> for Node {
 
                 for (i, completion_status) in completion_status.iter().enumerate() {
                     node.add(Node::field(
-                        &format!("completion_status{}", i),
+                        &format!("completion_status{i}"),
                         *completion_status as u64,
                     ));
                 }

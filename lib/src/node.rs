@@ -181,7 +181,7 @@ impl Node {
         let mut instance = 0;
         let name = other.name.clone();
         while self.children.contains_key(&other.name) {
-            other.name = format!("{}{}", name, instance);
+            other.name = format!("{name}{instance}");
             instance += 1
         }
         self.add(other)
@@ -259,10 +259,10 @@ impl Serialize for Node {
         match self.kind {
             NodeType::Field { value } => {
                 if self.children.is_empty() {
-                    serializer.serialize_str(&format!("0x{:x}", value))
+                    serializer.serialize_str(&format!("0x{value:x}"))
                 } else {
                     let mut map = serializer.serialize_map(Some(self.children.len() + 1))?;
-                    map.serialize_entry("_value", &format!("0x{:x}", value))?;
+                    map.serialize_entry("_value", &format!("0x{value:x}"))?;
                     for (k, v) in self.children.iter() {
                         map.serialize_entry(k, v)?;
                     }

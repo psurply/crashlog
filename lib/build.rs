@@ -40,7 +40,7 @@ fn generate_headers() {
             .map_or_else(
                 |error| match error {
                     cbindgen::Error::ParseSyntaxError { .. } => {}
-                    e => panic!("{:?}", e),
+                    e => panic!("{e:?}"),
                 },
                 |bindings| {
                     bindings.write_to_file(header);

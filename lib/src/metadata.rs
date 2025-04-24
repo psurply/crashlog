@@ -27,9 +27,9 @@ pub struct Time {
 impl fmt::Display for Metadata {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match (self.computer.as_ref(), self.time.as_ref()) {
-            (Some(computer), Some(time)) => write!(f, "{}-{}", computer, time),
-            (None, Some(time)) => write!(f, "{}", time),
-            (Some(computer), None) => write!(f, "{}", computer),
+            (Some(computer), Some(time)) => write!(f, "{computer}-{time}"),
+            (None, Some(time)) => write!(f, "{time}"),
+            (Some(computer), None) => write!(f, "{computer}"),
             (None, None) => write!(f, "unnamed"),
         }
     }
