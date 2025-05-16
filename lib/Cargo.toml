@@ -3,6 +3,7 @@ name = "intel_crashlog"
 version = "0.1.0"
 edition = "2024"
 license = "MIT"
+publish = false
 
 [lib]
 crate-type = ["cdylib", "rlib"]
@@ -89,3 +90,6 @@ optional = true
 [build-dependencies.cbindgen]
 version = "0.28"
 optional = true
+
+[profile.release]
+strip = "debuginfo"
