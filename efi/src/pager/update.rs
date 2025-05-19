@@ -7,11 +7,11 @@ use super::input::Command;
 impl Pager {
     fn search(&mut self, indexes: impl IntoIterator<Item = usize>) {
         for idx in indexes {
-            if let Some(line) = self.lines.get(idx) {
-                if line.contains(&self.search_pattern) {
-                    self.window.line = idx;
-                    return;
-                }
+            if let Some(line) = self.lines.get(idx)
+                && line.contains(&self.search_pattern)
+            {
+                self.window.line = idx;
+                return;
             }
         }
     }

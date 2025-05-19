@@ -31,13 +31,13 @@ pub fn extract(output_path: Option<&Path>) {
                     PathBuf::from(format!("{}.crashlog", crashlog.metadata))
                 };
 
-                if crashlogs.len() > 1 {
-                    if let Some(filename) = path.file_stem() {
-                        path.set_file_name(format!(
-                            "{}-{i}.crashlog",
-                            PathBuf::from(filename).display()
-                        ))
-                    }
+                if crashlogs.len() > 1
+                    && let Some(filename) = path.file_stem()
+                {
+                    path.set_file_name(format!(
+                        "{}-{i}.crashlog",
+                        PathBuf::from(filename).display()
+                    ))
                 }
 
                 println!("{}", path.display());
