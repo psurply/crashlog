@@ -19,7 +19,7 @@
 
   ```toml
   [dependencies.intel_crashlog]
-  version = "0.1"
+  version = "0.2"
   git = "https://github.com/intel/crashlog"
   ```
 
@@ -27,7 +27,7 @@
 
   ```toml
   [dependencies.intel_crashlog]
-  version = "0.1"
+  version = "0.2"
   git = "https://github.com/intel/crashlog"
   default-features = false
   features = ["serialize", "std"]
