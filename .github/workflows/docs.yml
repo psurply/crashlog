@@ -17,6 +17,7 @@ concurrency:
 
 jobs:
   build:
+    if: github.repository == 'intel/crashlog'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,6 +37,7 @@ jobs:
         uses: actions/upload-pages-artifact@v3
 
   deploy:
+    if: github.repository == 'intel/crashlog'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
