@@ -1,10 +1,11 @@
 // Copyright (C) 2025 Intel Corporation
 // SPDX-License-Identifier: MIT
 
+use super::InfoFormat;
 use intel_crashlog::prelude::*;
 use std::path::Path;
 
-pub fn compact<T: CollateralTree>(cm: &CollateralManager<T>, input: &Path) -> Result<(), Error> {
+fn compact<T: CollateralTree>(cm: &CollateralManager<T>, input: &Path) -> Result<(), Error> {
     let crashlog = CrashLog::from_slice(&std::fs::read(input)?)?;
 
     println!("  #   Record Type      Rev.  Product  Size   Skt  Checksum  Die      ");
@@ -56,42 +57,55 @@ pub fn compact<T: CollateralTree>(cm: &CollateralManager<T>, input: &Path) -> Re
     Ok(())
 }
 
-pub fn markdown<T: CollateralTree>(cm: &CollateralManager<T>, input: &Path) -> Result<(), Error> {
+fn markdown<T: CollateralTree>(cm: &CollateralManager<T>, input: &Path) -> Result<(), Error> {
     let crashlog = CrashLog::from_slice(&std::fs::read(input)?)?;
 
-    // column widths for headers
-    let w0 = 18; // #(Region-Record)
-    let w1 = 15; // Record Type
-    let w2 = 8; // Rev.
-    let w3 = 14; // Product
-    let w4 = 10; // Size
-    let w5 = 8; // Skt
-    let w6 = 12; // Checksum
-    let w7 = 10; // Die
+    // Column widths
+    let region_idx_width = 8;
+    let record_idx_width = 8;
+    let record_type_width = 16;
+    let revision_width = 8;
+    let product_width = 14;
+    let size_width = 10;
+    let skt_width = 8;
+    let checksum_width = 12;
+    let die_width = 10;
 
-    // update # to #(Region-Record)
-    let header = format!(
-        "| {:<w0$} | {:<w1$} | {:<w2$} | {:<w3$} | {:<w4$} | {:<w5$} | {:<w6$} | {:<w7$} |",
-        "#(Region-Record)",
+    // Header
+    println!(
+        "| {1:<region_idx_width$} \
+         | {2:<record_idx_width$} \
+         | {3:<record_type_width$} \
+         | {4:<revision_width$} \
+         | {5:<product_width$} \
+         | {6:<size_width$} \
+         | {7:<skt_width$} \
+         | {8:<checksum_width$} \
+         | {9:<die_width$} \
+         |\n\
+         | {0:-<region_idx_width$} \
+         | {0:-<record_idx_width$} \
+         | {0:-<record_type_width$} \
+         | {0:-<revision_width$} \
+         | {0:-<product_width$} \
+         | {0:-<size_width$} \
+         | {0:-<skt_width$} \
+         | {0:-<checksum_width$} \
+         | {0:-<die_width$} \
+         |",
+        "",
+        "Region",
+        "Record",
         "Record Type",
-        "Rev.",
+        "Revision",
         "Product",
         "Size",
-        "Skt",
+        "Socket",
         "Checksum",
         "Die",
-        w0 = w0,
-        w1 = w1,
-        w2 = w2,
-        w3 = w3,
-        w4 = w4,
-        w5 = w5,
-        w6 = w6,
-        w7 = w7
     );
-    println!("{}", &header);
     // separator line for table headers
-    println!("{}", "-".repeat(header.len()));
+    //println!("{}", "-".repeat(header.len()));
 
     for (i, region) in crashlog.regions.iter().enumerate() {
         for (j, record) in region.records.iter().enumerate() {
@@ -121,28 +135,53 @@ pub fn markdown<T: CollateralTree>(cm: &CollateralManager<T>, input: &Path) -> R
                     .map(|die_id| die_id.to_string())
                     .unwrap_or_default()
             };
+            let revision = record.header.revision();
+            let record_size = record.header.record_size();
+            let socket_id = record.header.socket_id();
 
-            // populate the table
+            // Populate the table
             println!(
-                "| {:<w0$} | {:<w1$} | {:<w2$} | {:<w3$} | {:<w4$} | {:<w5$} | {:<w6$} | {:<w7$} |",
-                format!("{}-{}", i, j),
-                record_type,
-                record.header.revision(),
-                product,
-                record.header.record_size(),
-                record.header.socket_id(),
-                checksum,
-                die,
-                w0 = w0,
-                w1 = w1,
-                w2 = w2,
-                w3 = w3,
-                w4 = w4,
-                w5 = w5,
-                w6 = w6,
-                w7 = w7
+                "| {i:<region_idx_width$} \
+                 | {j:<record_idx_width$} \
+                 | {record_type:<record_type_width$} \
+                 | {revision:<revision_width$} \
+                 | {product:<product_width$} \
+                 | {record_size:<size_width$} \
+                 | {socket_id:<skt_width$} \
+                 | {checksum:<checksum_width$} \
+                 | {die:<die_width$} \
+                 |"
             );
         }
     }
     Ok(())
+}
+
+pub fn info<T, P>(cm: &CollateralManager<T>, input_files: &[P], format: InfoFormat)
+where
+    T: CollateralTree,
+    P: AsRef<Path>,
+{
+    match format {
+        InfoFormat::Compact => {
+            for input_file in input_files {
+                if input_files.len() > 1 {
+                    println!("\n{}:\n", input_file.as_ref().display());
+                }
+                if let Err(err) = compact(cm, input_file.as_ref()) {
+                    log::error!("Error: {err}")
+                }
+            }
+        }
+        InfoFormat::Markdown => {
+            for input_file in input_files {
+                println!("\n## `{}`\n", input_file.as_ref().display());
+
+                if let Err(err) = markdown(cm, input_file.as_ref()) {
+                    log::warn!("Error: {err}");
+                    println!("\n```\n{err}\n```");
+                }
+            }
+        }
+    }
 }
