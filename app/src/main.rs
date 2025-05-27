@@ -32,6 +32,7 @@ struct Cli {
 enum InfoFormat {
     #[default]
     Compact,
+    Markdown,
 }
 
 #[derive(Subcommand)]
@@ -70,6 +71,30 @@ impl Command {
                     }
                 }
             }
+
+            Command::Info {
+                input_files,
+                format,
+            } => {
+                for input_file in input_files {
+                    if input_files.len() > 1 {
+                        println!("\n{}:\n", input_file.display());
+                    }
+                    match format {
+                        InfoFormat::Compact => {
+                            if let Err(err) = info::compact(&cm, input_file) {
+                                log::error!("Error: {err}")
+                            }
+                        }
+                        InfoFormat::Markdown => {
+                            if let Err(err) = info::markdown(&cm, input_file) {
+                                log::error!("Error: {err}")
+                            }
+                        }
+                    }
+                }
+            }
+
             Command::Unpack { input_files } => {
                 for input_file in input_files {
                     if let Err(err) = unpack::unpack(input_file) {
