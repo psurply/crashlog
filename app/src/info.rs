@@ -104,8 +104,6 @@ fn markdown<T: CollateralTree>(cm: &CollateralManager<T>, input: &Path) -> Resul
         "Checksum",
         "Die",
     );
-    // separator line for table headers
-    //println!("{}", "-".repeat(header.len()));
 
     for (i, region) in crashlog.regions.iter().enumerate() {
         for (j, record) in region.records.iter().enumerate() {
@@ -157,7 +155,7 @@ fn markdown<T: CollateralTree>(cm: &CollateralManager<T>, input: &Path) -> Resul
     Ok(())
 }
 
-pub fn info<T, P>(cm: &CollateralManager<T>, input_files: &[P], format: InfoFormat)
+pub(crate) fn info<T, P>(cm: &CollateralManager<T>, input_files: &[P], format: InfoFormat)
 where
     T: CollateralTree,
     P: AsRef<Path>,
