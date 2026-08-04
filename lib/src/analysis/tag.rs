@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: MIT
 
 use super::Analyzer;
+use super::agent::CrashLogAgentStatus;
 use super::reason::CrashLogReason;
 use super::reset::ResetKind;
 use super::xq::TransactionQueueState;
@@ -48,6 +49,10 @@ pub enum Tag {
         mscod: String,
         mcacod: String,
     },
+    CrashLogAgentError {
+        status: CrashLogAgentStatus,
+        instruction_pointer: u32,
+    },
 }
 
 #[derive(Clone, PartialEq, Eq)]
@@ -84,6 +89,15 @@ impl fmt::Display for Tag {
                 mcacod,
             } => {
                 write!(f, "MCA.BANK{bank}.{mcacod}.{mscod}")
+            }
+            Self::CrashLogAgentError {
+                status,
+                instruction_pointer,
+            } => {
+                write!(
+                    f,
+                    "CRASHLOG_AGENT_ERROR.{status}.IP_{instruction_pointer:X}H"
+                )
             }
         }
     }

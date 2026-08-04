@@ -18,6 +18,7 @@
 //! 2. Call [`Analyzer::analyze`] to perform analysis across all queued nodes
 //! 3. Receive an [`AnalysisReport`] containing diagnostic findings
 
+mod agent;
 mod core;
 mod mca;
 mod reason;
@@ -53,6 +54,7 @@ impl<'a> Analyzer<'a> {
             "punit" | "pmc" => self.analyze_reason(node),
             "pcore" | "ecore" => self.analyze_core(node),
             "mca" => self.analyze_mca(node),
+            "crashlog_agent" => self.analyze_crashlog_agent(node),
             _ => (),
         }
     }
