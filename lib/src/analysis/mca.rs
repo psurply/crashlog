@@ -1,11 +1,14 @@
 // Copyright (C) 2026 Intel Corporation
 // SPDX-License-Identifier: MIT
 
+mod mcacod;
+
 use super::Analyzer;
 use super::tag::Tag;
 use crate::node::Node;
 #[cfg(not(feature = "std"))]
 use alloc::{fmt, string::ToString};
+pub use mcacod::MachineCheckErrorCode;
 #[cfg(feature = "std")]
 use std::fmt;
 
@@ -24,29 +27,6 @@ impl fmt::Display for ModelSpecificCode {
 impl ModelSpecificCode {
     pub fn from_u16(code: u16) -> Self {
         Self::Raw(code)
-    }
-}
-
-pub enum MachineCheckErrorCode {
-    Raw(u16),
-    InternalTimerError,
-}
-
-impl fmt::Display for MachineCheckErrorCode {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        match self {
-            Self::Raw(mcacod) => write!(f, "MCACOD_{mcacod:04X}H"),
-            Self::InternalTimerError => write!(f, "INTERNAL_TIMER_ERROR"),
-        }
-    }
-}
-
-impl MachineCheckErrorCode {
-    pub fn from_u16(code: u16) -> Self {
-        match code {
-            0x0400 => Self::InternalTimerError,
-            _ => Self::Raw(code),
-        }
     }
 }
 
