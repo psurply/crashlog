@@ -5,10 +5,12 @@
 
 use crate::cper::section::{CperSectionBody, fer};
 use crate::error::Error;
-use crate::header::Header;
+use crate::header::{Header, record_types};
 use crate::record::Record;
 #[cfg(not(feature = "std"))]
 use alloc::vec::Vec;
+
+const MAX_NESTED_BOXES: usize = 4;
 
 /// A container for one or several Crash Log records.
 ///
@@ -17,6 +19,7 @@ use alloc::vec::Vec;
 #[derive(Default)]
 pub struct Region {
     pub records: Vec<Record>,
+    depth: usize,
 }
 
 impl Region {
@@ -35,10 +38,42 @@ impl Region {
         }
     }
 
-    pub(crate) fn set_child_context(&mut self, hdr: &Header) {
-        for record in self.records.iter_mut() {
-            record.context.parent_header = Some(hdr.clone());
+    pub(crate) fn get_children(&self) -> Vec<Self> {
+        let mut children = Vec::new();
+
+        if self.depth >= MAX_NESTED_BOXES {
+            return children;
         }
+
+        for record in self.records.iter() {
+            let errata = record.header.version.errata();
+            let is_box = record.header.version.record_type == record_types::BOX
+                || errata.type0_legacy_server_box;
+
+            if !is_box {
+                continue;
+            }
+
+            let Some(payload) = record.data.get(record.header.header_size()..) else {
+                log::error!("The Box record has an empty payload");
+                continue;
+            };
+
+            match Region::from_slice(payload) {
+                Ok(mut child) => {
+                    for child_record in child.records.iter_mut() {
+                        child_record.context.parent_header = Some(record.header.clone());
+                    }
+
+                    child.depth = self.depth + 1;
+
+                    children.push(child)
+                }
+                Err(err) => log::warn!("Invalid region in Box record: {err}"),
+            }
+        }
+
+        children
     }
 
     pub fn from_slice(bytes: &[u8]) -> Result<Self, Error> {

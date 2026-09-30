@@ -14,8 +14,6 @@ use alloc::{collections::VecDeque, vec, vec::Vec};
 #[cfg(feature = "std")]
 use std::collections::VecDeque;
 
-use crate::header::record_types;
-
 /// Set of all the Crash Log records captured on a platform.
 #[derive(Default)]
 pub struct CrashLog {
@@ -31,29 +29,9 @@ impl CrashLog {
         let mut regions = Vec::new();
 
         while let Some(region) = queue.pop_front() {
-            for record in region.records.iter() {
-                let errata = record.header.version.errata();
-                let is_box = record.header.version.record_type == record_types::BOX
-                    || errata.type0_legacy_server_box;
-
-                if !is_box {
-                    continue;
-                }
-
-                let Some(payload) = record.data.get(record.header.header_size()..) else {
-                    log::error!("The Box record has an empty payload");
-                    continue;
-                };
-
-                match Region::from_slice(payload) {
-                    Ok(mut region) => {
-                        region.set_child_context(&record.header);
-                        queue.push_front(region)
-                    }
-                    Err(err) => log::warn!("Invalid region in Box record: {err}"),
-                }
+            for child in region.get_children() {
+                queue.push_back(child);
             }
-
             regions.push(region)
         }
 
